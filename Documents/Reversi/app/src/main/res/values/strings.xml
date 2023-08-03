@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="game_rule">game</string>
+    <string name="reversi">Reversi</string>
+    <string name="grandmaster">GrandMaster</string>
+    <string name="sure">Sure</string>
+    <string name="grandmaster_1">GrandMaster</string>
+    <string name="chess_player">Chess Player</string>
+    <string name="todo">TODO</string>
+    <string name="game_rules">Game Rules</string>
+
+</resources>
