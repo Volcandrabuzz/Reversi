@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="#313131">
 
@@ -28,12 +29,15 @@
         android:orientation="vertical"
         android:gravity="center">
 
-        <Button
-            android:id="@+id/playButton"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:layout_gravity="center"
-            android:background="@drawable/playbutton"
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/animationView"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/playbutton_3d"
             tools:ignore="SpeakableTextPresentCheck" />
 
     </LinearLayout>
@@ -60,21 +64,24 @@
                 android:layout_marginBottom="20dp"
                 android:gravity="bottom"/>
 
-            <Button
-                android:id="@+id/ruleButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/gamerules"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:clickable="true"
                 android:layout_marginEnd="10dp"
-                android:layout_marginBottom="10dp"
-                android:layout_weight="1"
-                android:background="#2984CC"
-                android:layout_gravity="right|bottom"
-                android:minHeight="48dp"
-                android:padding="10dp"
-                android:text="@string/game_rules"
-                android:textColor="#111112"
-                android:textSize="22sp"
-                android:textStyle="bold|normal" />
+                android:focusable="true"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                app:lottie_rawRes="@raw/gamerules"
+                tools:ignore="SpeakableTextPresentCheck"/>
+
+
+
+
+
         </LinearLayout>
 
 

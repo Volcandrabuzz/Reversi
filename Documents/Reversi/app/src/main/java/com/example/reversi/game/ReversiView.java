@@ -103,7 +103,7 @@ public class ReversiView extends SurfaceView implements Callback {
 		chessBoardBottom = chessBoardTop + M * a;
 		images = new Bitmap[22];
 		loadChesses(context);
-		background = loadBitmap(bgLength, bgLength, context.getResources().getDrawable(R.drawable.logo));
+		background = loadBitmap(bgLength, bgLength, context.getResources().getDrawable(R.drawable.mood));
 		initialChessBoard();
 	}
 

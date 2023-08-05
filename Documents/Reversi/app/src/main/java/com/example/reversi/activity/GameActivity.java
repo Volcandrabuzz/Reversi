@@ -1,5 +1,6 @@
 package com.example.reversi.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,7 +11,6 @@ import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.widget.Button;
@@ -49,8 +49,6 @@ public class GameActivity extends Activity {
     private ImageView playerImage;
     private ImageView aiImage;
     private TextView nameOfAI;
-    private Button newGame;
-    private Button tip;
 
     private byte playerColor;
     private byte aiColor;
@@ -58,9 +56,9 @@ public class GameActivity extends Activity {
 
 
     private static final int M = 8;
-    private static final int depth[] = new int[] { 0, 1, 2, 3, 7, 3, 5, 2, 4 };
+    private static final int[] depth = new int[] { 0, 1, 2, 3, 7, 3, 5, 2, 4 };
 
-    private byte[][] chessBoard = new byte[M][M];
+    private final byte[][] chessBoard = new byte[M][M];
     private int gameState;
 
     private static final String MULTIPLY = " × ";
@@ -81,8 +79,8 @@ public class GameActivity extends Activity {
         playerImage =  findViewById(R.id.player_image);
         aiImage =  findViewById(R.id.ai_image);
         nameOfAI =  findViewById(R.id.name_of_ai);
-        newGame =  findViewById(R.id.new_game);
-        tip = findViewById(R.id.tip);
+        Button newGame = findViewById(R.id.new_game);
+        Button tip = findViewById(R.id.tip);
 
         Bundle bundle = getIntent().getExtras();
         playerColor = bundle.getByte("playerColor");
@@ -102,6 +100,7 @@ public class GameActivity extends Activity {
 
 
 
+            @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
@@ -128,8 +127,8 @@ public class GameActivity extends Activity {
                             if (!Rule.isLegalMove(chessBoard, new Move(row, col), playerColor)) {
                                 return true;
                             }
-                            /**
-                             * Player walks
+                            /*
+                              Player walks
                              */
 
                             Move move = new Move(row, col);
@@ -147,56 +146,47 @@ public class GameActivity extends Activity {
             }
         });
 
-        newGame.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        newGame.setOnClickListener(v -> {
 
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                byte _playerColor = (byte)preferences.getInt("playerColor", Constant.BLACK);
-                int _difficulty = preferences.getInt("difficulty", 1);
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            byte _playerColor = (byte)preferences.getInt("playerColor", Constant.BLACK);
+            int _difficulty = preferences.getInt("difficulty", 1);
 
-                dialog = new NewGameDialog(GameActivity.this, _playerColor, _difficulty);
+            dialog = new NewGameDialog(GameActivity.this, _playerColor, _difficulty);
 
-                dialog.setOnStartNewGameListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        playerColor = dialog.getPlayerColor();
-                        aiColor = (byte) -playerColor;
-                        difficulty = dialog.getDifficulty();
+            dialog.setOnStartNewGameListener(v1 -> {
+                playerColor = dialog.getPlayerColor();
+                aiColor = (byte) -playerColor;
+                difficulty = dialog.getDifficulty();
 
-                        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                        preferences.edit().putInt("playerColor", playerColor).commit();
-                        preferences.edit().putInt("difficulty", difficulty).commit();
+                SharedPreferences preferences1 = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                preferences1.edit().putInt("playerColor", playerColor).apply();
+                preferences1.edit().putInt("difficulty", difficulty).apply();
 
-                        nameOfAI.setText(NAME_OF_AI[difficulty - 1]);
+                nameOfAI.setText(NAME_OF_AI[difficulty - 1]);
 
-                        initialChessboard();
-                        if(playerColor == BLACK){
-                            playerImage.setImageResource(R.drawable.black1);
-                            aiImage.setImageResource(R.drawable.white1);
-                            playerTurn();
-                        }else{
-                            playerImage.setImageResource(R.drawable.white1);
-                            aiImage.setImageResource(R.drawable.black1);
-                            aiTurn();
-                        }
-                        reversiView.initialChessBoard();
-                        dialog.dismiss();
-                    }
-                });
-                dialog.show();
-            }
+                initialChessboard();
+                if(playerColor == BLACK){
+                    playerImage.setImageResource(R.drawable.black1);
+                    aiImage.setImageResource(R.drawable.white1);
+                    playerTurn();
+                }else{
+                    playerImage.setImageResource(R.drawable.white1);
+                    aiImage.setImageResource(R.drawable.black1);
+                    aiTurn();
+                }
+                reversiView.initialChessBoard();
+                dialog.dismiss();
+            });
+            dialog.show();
         });
 
 
-        tip.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(gameState != STATE_PLAYER_MOVE){
-                    return;
-                }
-                new ThinkingThread(playerColor).start();
+        tip.setOnClickListener(v -> {
+            if(gameState != STATE_PLAYER_MOVE){
+                return;
             }
+            new ThinkingThread(playerColor).start();
         });
 
         if(playerColor == BLACK){
@@ -226,7 +216,7 @@ public class GameActivity extends Activity {
 
     class ThinkingThread extends Thread {
 
-        private byte thinkingColor;
+        private final byte thinkingColor;
 
         public ThinkingThread(byte thinkingColor) {
             this.thinkingColor = thinkingColor;
@@ -248,15 +238,16 @@ public class GameActivity extends Activity {
         }
     }
 
-    private UpdateUIHandler updateUI = new UpdateUIHandler();
+    private final UpdateUIHandler updateUI = new UpdateUIHandler();
 
+    @SuppressLint("HandlerLeak")
     class UpdateUIHandler extends Handler {
 
         @Override
         public void handleMessage(Message msg) {
 
-            /**
-             * Update game state
+            /*
+              Update game state
              */
             int legalMoves = msg.what;
             int thinkingColor = msg.arg1;
@@ -270,10 +261,10 @@ public class GameActivity extends Activity {
                     playerTurn();
                 } else if (legalMovesOfAI == 0 && legalMovesOfPlayer > 0) {
                     playerTurn();
-                } else if (legalMovesOfAI == 0 && legalMovesOfPlayer == 0) {
+                } else if (legalMovesOfAI == 0) {
                     gameState = STATE_GAME_OVER;
                     gameOver(statistic.PLAYER - statistic.AI);
-                } else if (legalMovesOfAI > 0 && legalMovesOfPlayer == 0) {
+                } else if (legalMovesOfAI > 0) {
                     aiTurn();
                 }
             }else{
@@ -284,10 +275,10 @@ public class GameActivity extends Activity {
                     aiTurn();
                 }else if(legalMovesOfPlayer == 0 && legalMovesOfAI > 0){
                     aiTurn();
-                }else if(legalMovesOfPlayer == 0 && legalMovesOfAI == 0){
+                }else if(legalMovesOfPlayer == 0){
                     gameState = STATE_GAME_OVER;
                     gameOver(statistic.PLAYER - statistic.AI);
-                }else if (legalMovesOfPlayer > 0 && legalMovesOfAI == 0) {
+                }else if (legalMovesOfPlayer > 0) {
                     playerTurn();
                 }
             }
@@ -298,8 +289,9 @@ public class GameActivity extends Activity {
             removeMessages(0);
             sendMessageDelayed(Message.obtain(updateUI, legalMoves, thinkingColor, 0), delayMillis);
         }
-    };
+    }
 
+    @SuppressLint("SetTextI18n")
     private void playerTurn(){
         Statistic statistic = Rule.analyse(chessBoard, playerColor);
         playerChesses.setText(MULTIPLY + statistic.PLAYER);
@@ -309,6 +301,7 @@ public class GameActivity extends Activity {
         gameState = STATE_PLAYER_MOVE;
     }
 
+    @SuppressLint("SetTextI18n")
     private void aiTurn(){
         Statistic statistic = Rule.analyse(chessBoard, playerColor);
         playerChesses.setText(MULTIPLY + statistic.PLAYER);
@@ -321,12 +314,12 @@ public class GameActivity extends Activity {
 
     private void gameOver(int winOrLoseOrDraw){
 
-        String msg = "";
+        String msg;
         if(winOrLoseOrDraw > 0){
             msg = "You beat" + NAME_OF_AI[difficulty - 1];
         }else if(winOrLoseOrDraw == 0){
             msg = "Draw";
-        }else if(winOrLoseOrDraw < 0){
+        }else {
             msg = "You were" + NAME_OF_AI[difficulty - 1] + "Defeated";
         }
         MessageDialog msgDialog = new MessageDialog(GameActivity.this, msg);
